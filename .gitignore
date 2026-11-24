@@ -1,0 +1,15 @@
+# Dependências
+node_modules/
+server/node_modules/
+client/node_modules/
+
+# Variáveis de ambiente e dados locais
+.env
+server/.env
+server/data/messages.json
+
+# Builds e caches
+client/dist/
+.vite/
+*.log
+.DS_Store

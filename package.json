@@ -2,6 +2,7 @@
   "name": "portfolio-joao-pedro",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Portfólio FullStack & IA de João Pedro Andrade (React + Node.js/Express + GitHub API)",
   "scripts": {
     "install:all": "npm install && npm --prefix server install && npm --prefix client install",
@@ -10,6 +11,11 @@
     "dev:client": "npm --prefix client run dev",
     "build": "npm --prefix client run build",
     "start": "npm --prefix server run start"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
   },
   "devDependencies": {
     "concurrently": "^9.1.0"

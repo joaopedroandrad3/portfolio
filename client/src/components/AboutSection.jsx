@@ -8,13 +8,13 @@ import MarkdownRenderer from './MarkdownRenderer';
 
 export default function AboutSection({ readme, onRefresh, refreshing }) {
   const { lang, t } = useLanguage();
-  const [viewMode, setViewMode] = useState('editorial'); // 'editorial' | 'readme'
+  const [viewMode, setViewMode] = useState('editorial');
 
   return (
     <section id="about" className="relative z-10 py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-12 lg:gap-16">
-          {/* Coluna Visual com Moldura Geométrica Offset (Ref 2) */}
+          {/* Coluna Visual com Moldura Geométrica Offset */}
           <motion.div
             initial={{ opacity: 0, x: -24 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -25,28 +25,22 @@ export default function AboutSection({ readme, onRefresh, refreshing }) {
             <div className="offset-frame mx-auto max-w-md">
               <div className="glass-panel relative aspect-[4/5] w-full overflow-hidden rounded-sm">
                 {PROFILE_CONFIG.photoUrl ? (
-                  /* Quando o usuário configurar photoUrl em src/config/profile.js,
-                     seu retrato aparece aqui no estilo editorial monocromático da Ref 4! */
                   <img
                     src={PROFILE_CONFIG.photoUrl}
                     alt={PROFILE_CONFIG.fullName}
                     className="h-full w-full object-cover grayscale contrast-110 transition duration-700 hover:grayscale-0"
                   />
                 ) : (
-                  /* Escultura Orbital 3D Interativa enquanto o usuário prefere sem foto */
                   <ObsidianRelicCanvas />
                 )}
 
-                {/* Legenda inferior astronômica sobre a moldura */}
                 <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent p-5">
                   <div className="flex items-center justify-between gap-2 font-mono text-[10px] tracking-[0.14em] text-amethyst-300">
-                    <span className="whitespace-nowrap">{t.about.relicLabel}</span>
+                    <span className="whitespace-nowrap">{t.about.relicTitle}</span>
                     <span className="whitespace-nowrap">@{PROFILE_CONFIG.githubUsername}</span>
                   </div>
-                  <p className="mt-1.5 text-[11px] text-mist/80">
-                    {PROFILE_CONFIG.photoUrl
-                      ? PROFILE_CONFIG.location[lang]
-                      : t.about.relicSub}
+                  <p className="mt-1.5 text-[11px] text-mist/85">
+                    {t.about.relicSub} • {PROFILE_CONFIG.location[lang]}
                   </p>
                 </div>
               </div>
@@ -71,7 +65,6 @@ export default function AboutSection({ readme, onRefresh, refreshing }) {
               {t.about.titleEnd}
             </h2>
 
-            {/* Switcher Tátil Ref-5: Visão Editorial ↔ README.md Live do GitHub */}
             <div className="mt-7 flex flex-wrap items-center justify-between gap-3">
               <div className="inline-flex rounded-full border border-white/12 bg-[#0B0A14]/90 p-1 shadow-glass backdrop-blur-xl">
                 <button
@@ -111,8 +104,7 @@ export default function AboutSection({ readme, onRefresh, refreshing }) {
               )}
             </div>
 
-            {/* Conteúdo Alternável */}
-            <div className="mt-6 min-h-[260px]">
+            <div className="mt-6 min-h-[250px]">
               <AnimatePresence mode="wait">
                 {viewMode === 'editorial' ? (
                   <motion.div
@@ -134,17 +126,13 @@ export default function AboutSection({ readme, onRefresh, refreshing }) {
                       {t.about.body2}
                     </p>
 
-                    {/* Cartões rápidos arquitetônicos */}
-                    <div className="grid grid-cols-3 gap-3 pt-4">
+                    <div className="grid grid-cols-1 gap-3 pt-4 sm:grid-cols-3">
                       {t.about.quickStats.map((stat) => (
-                        <div
-                          key={stat.label}
-                          className="glass-panel rounded-xl px-4 py-3.5"
-                        >
+                        <div key={stat.label} className="glass-panel rounded-xl px-4 py-3.5">
                           <span className="block font-mono text-[10px] uppercase tracking-[0.18em] text-mist/80">
                             {stat.label}
                           </span>
-                          <span className="mt-1 block text-sm font-semibold text-white sm:text-base">
+                          <span className="mt-1 block text-sm font-semibold text-white">
                             {stat.value}
                           </span>
                         </div>
@@ -164,9 +152,6 @@ export default function AboutSection({ readme, onRefresh, refreshing }) {
                       <span className="inline-flex items-center gap-2 font-mono text-[11px] text-amethyst-300">
                         <Sparkles className="h-3.5 w-3.5" />
                         {t.about.readmeCaption}
-                      </span>
-                      <span className="font-mono text-[10px] text-mist">
-                        {readme?.lineCount || 0} lines
                       </span>
                     </div>
                     <div className="max-h-[340px] overflow-y-auto pr-2">

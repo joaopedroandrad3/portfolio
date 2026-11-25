@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ArrowDown, ArrowRight, Github, Instagram, Linkedin, Mail, Sparkles } from 'lucide-react';
+import { ArrowDown, ArrowRight, Github, Linkedin, Mail, Sparkles } from 'lucide-react';
 import { PROFILE_CONFIG } from '../config/profile';
 import { useLanguage } from '../i18n/LanguageContext';
 
@@ -16,7 +16,6 @@ export default function HeroSection() {
         aria-hidden="true"
         className="pointer-events-none absolute -right-32 top-1/2 h-[640px] w-[640px] -translate-y-1/2 opacity-90 sm:-right-20 lg:right-[2%] lg:h-[740px] lg:w-[740px]"
       >
-        {/* Halo de coroa violeta */}
         <div
           className="absolute inset-12 rounded-full blur-3xl"
           style={{
@@ -34,7 +33,6 @@ export default function HeroSection() {
             </linearGradient>
           </defs>
 
-          {/* Anéis orbitais lentos */}
           <g className="animate-slow-orbit origin-center" style={{ transformOrigin: '300px 300px' }}>
             <circle
               cx="300"
@@ -64,17 +62,14 @@ export default function HeroSection() {
             <circle cx="118" cy="396" r="3" fill="#C084FC" />
           </g>
 
-          {/* Arco de Eclipse (preto absoluto com borda branca & violeta) */}
           <circle cx="300" cy="300" r="158" stroke="url(#eclipseRing)" strokeWidth="2.2" />
           <circle cx="300" cy="300" r="172" stroke="rgba(168,85,247,0.18)" strokeWidth="1" />
           <circle cx="308" cy="304" r="152" fill="#040407" />
 
-          {/* Brilho "anel de diamante" no topo esquerdo do eclipse */}
           <circle cx="194" cy="184" r="4.5" fill="#FFFFFF" />
           <line x1="170" y1="184" x2="218" y2="184" stroke="rgba(255,255,255,0.65)" strokeWidth="1" />
           <line x1="194" y1="160" x2="194" y2="208" stroke="rgba(255,255,255,0.65)" strokeWidth="1" />
 
-          {/* Eixos celestiais */}
           <line x1="300" y1="20" x2="300" y2="108" stroke="rgba(255,255,255,0.1)" />
           <line x1="300" y1="492" x2="300" y2="580" stroke="rgba(255,255,255,0.1)" />
         </svg>
@@ -88,16 +83,14 @@ export default function HeroSection() {
           transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
           className="max-w-3xl"
         >
-          {/* Coordenadas + Eyebrow */}
-          <div className="mb-6 flex flex-wrap items-center gap-3 font-mono text-[11px] tracking-[0.24em] text-amethyst-300 uppercase">
+          <div className="mb-6 flex flex-wrap items-center gap-3 font-mono text-[11px] tracking-[0.22em] text-amethyst-300 uppercase">
             <span className="inline-flex items-center gap-2 rounded-full border border-amethyst-400/30 bg-amethyst-600/10 px-3.5 py-1.5 backdrop-blur-md">
               <Sparkles className="h-3 w-3 text-amethyst-300" />
               {t.hero.eyebrow}
             </span>
-            <span className="text-white/35">{PROFILE_CONFIG.coordinates}</span>
+            <span className="text-white/45">{t.hero.locationTag}</span>
           </div>
 
-          {/* Tipografia Empilhada Editorial (Ref 4 + Ref 2) */}
           <h1 className="leading-[0.94] tracking-tight">
             <span className="block text-4xl font-light tracking-[0.16em] text-white/80 uppercase sm:text-6xl lg:text-7xl">
               {PROFILE_CONFIG.firstName}
@@ -108,7 +101,6 @@ export default function HeroSection() {
             </span>
           </h1>
 
-          {/* Subtítulo Serifado Editorial */}
           <p className="mt-5 font-serif text-2xl font-light text-white/90 sm:text-3xl lg:text-4xl">
             {t.hero.rolePrefix}{' '}
             <span className="italic text-amethyst-300">{t.hero.roleHighlight}</span>
@@ -118,7 +110,6 @@ export default function HeroSection() {
             {t.hero.tagline}
           </p>
 
-          {/* CTAs Táteis de Vidro Fumê (Ref 4 + Ref 5) */}
           <div className="mt-9 flex flex-wrap items-center gap-4">
             <a
               href="#projects"
@@ -129,19 +120,18 @@ export default function HeroSection() {
             </a>
 
             <a
-              href="#telemetry"
+              href="#contact"
               className="glass-pill-idle inline-flex items-center gap-3 rounded-full px-7 py-3.5 text-sm font-medium tracking-wide text-white/90"
             >
-              <span>{t.hero.ctaTelemetry}</span>
+              <span>{t.hero.ctaContact}</span>
             </a>
           </div>
 
-          {/* Ícones Sociais Minimalistas (Ref 4) */}
+          {/* Apenas canais profissionais (GitHub, LinkedIn e E-mail) */}
           <div className="mt-10 flex items-center gap-3">
             {[
               { href: PROFILE_CONFIG.socials.github, icon: Github, label: 'GitHub' },
               { href: PROFILE_CONFIG.socials.linkedin, icon: Linkedin, label: 'LinkedIn' },
-              { href: PROFILE_CONFIG.socials.instagram, icon: Instagram, label: 'Instagram' },
               { href: `mailto:${PROFILE_CONFIG.socials.email}`, icon: Mail, label: 'Email' },
             ].map(({ href, icon: Icon, label }) => (
               <a
@@ -159,7 +149,7 @@ export default function HeroSection() {
         </motion.div>
       </div>
 
-      {/* Faixa Inferior Arquitetônica em 3 Colunas (diretamente inspirada na Ref 1!) */}
+      {/* Faixa Inferior Arquitetônica em 3 Colunas */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

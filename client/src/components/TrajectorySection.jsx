@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { CheckCircle2, Compass } from 'lucide-react';
+import { Briefcase, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 
 function SkillTrack({ name, level, tag, delay = 0 }) {
@@ -11,7 +11,6 @@ function SkillTrack({ name, level, tag, delay = 0 }) {
         </span>
         <span className="font-mono text-[10px] text-mist">{tag}</span>
       </div>
-      {/* Barra arquitetônica com nó luminoso inspirada na Ref 4 */}
       <div className="relative h-[2px] w-full bg-white/12">
         <motion.div
           initial={{ width: 0 }}
@@ -27,9 +26,6 @@ function SkillTrack({ name, level, tag, delay = 0 }) {
   );
 }
 
-/**
- * Seção Currículo, Domínio Técnico & Trajetória em 3 colunas (diretamente inspirada na Ref 4).
- */
 export default function TrajectorySection() {
   const { t } = useLanguage();
 
@@ -47,8 +43,8 @@ export default function TrajectorySection() {
         </div>
 
         <div className="mt-14 grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-12">
-          {/* Coluna 1: Habilidades com Trilha & Nó Luminoso (Ref 4) */}
-          <div className="space-y-10 lg:col-span-4">
+          {/* Coluna 1: Habilidades Técnicas */}
+          <div className="space-y-8 lg:col-span-4">
             <div className="glass-panel rounded-2xl p-6">
               <h3 className="font-mono text-xs tracking-[0.22em] text-white uppercase">
                 {t.trajectory.colSkillsCore}
@@ -74,7 +70,7 @@ export default function TrajectorySection() {
             </div>
           </div>
 
-          {/* Coluna 2: Linha do Tempo Vertical com Nós Orbitais (Ref 4) */}
+          {/* Coluna 2: Linha do Tempo Profissional e Acadêmica */}
           <div className="lg:col-span-5">
             <div className="glass-panel h-full rounded-2xl p-6 sm:p-8">
               <h3 className="font-mono text-xs tracking-[0.22em] text-white uppercase">
@@ -108,7 +104,7 @@ export default function TrajectorySection() {
             </div>
           </div>
 
-          {/* Coluna 3: Capacidades & Interesses Astronômicos (Ref 4) */}
+          {/* Coluna 3: Contribuições + Disponibilidade & Idiomas (focado em recrutadores) */}
           <div className="flex flex-col gap-6 lg:col-span-3">
             <div className="glass-panel flex-1 rounded-2xl p-6">
               <h3 className="font-mono text-xs tracking-[0.22em] text-white uppercase">
@@ -128,19 +124,21 @@ export default function TrajectorySection() {
 
             <div className="glass-panel rounded-2xl p-6">
               <div className="flex items-center gap-2">
-                <Compass className="h-4 w-4 text-amethyst-300" />
+                <Briefcase className="h-4 w-4 text-amethyst-300" />
                 <h3 className="font-mono text-xs tracking-[0.22em] text-white uppercase">
-                  {t.trajectory.colInterests}
+                  {t.trajectory.colAvailability}
                 </h3>
               </div>
-              <div className="mt-5 flex flex-wrap gap-2">
-                {t.trajectory.interests.map((interest) => (
-                  <span
-                    key={interest}
-                    className="glass-pill-idle rounded-full px-3 py-1.5 text-[11px] text-white/90"
-                  >
-                    {interest}
-                  </span>
+              <div className="mt-5 space-y-4">
+                {t.trajectory.availability.map((item) => (
+                  <div key={item.label} className="border-b border-white/8 pb-3 last:border-b-0 last:pb-0">
+                    <span className="block font-mono text-[10px] tracking-[0.18em] text-amethyst-300 uppercase">
+                      {item.label}
+                    </span>
+                    <span className="mt-1 block text-xs font-medium text-white/95">
+                      {item.value}
+                    </span>
+                  </div>
                 ))}
               </div>
             </div>

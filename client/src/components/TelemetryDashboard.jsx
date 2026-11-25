@@ -1,23 +1,15 @@
 import { useId, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import {
-  Activity,
-  Code2,
-  FolderGit2,
-  RefreshCw,
-  Sliders,
-  Sparkles,
-  Users,
-} from 'lucide-react';
+import { Code2, Cpu, FolderGit2, RefreshCw, Sparkles } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 
 const CONSTELLATION_LAYOUT = [
-  { id: 'core', x: 18, y: 48, primary: true },
-  { id: 'fullstack', x: 48, y: 26, primary: true },
-  { id: 'ai', x: 78, y: 34, primary: true },
+  { id: 'core', x: 16, y: 46, primary: true },
+  { id: 'fullstack', x: 46, y: 24, primary: true },
+  { id: 'ai', x: 78, y: 30, primary: true },
   { id: 'infra', x: 46, y: 74, primary: true },
-  { id: 'aed', x: 24, y: 22, primary: false },
-  { id: 'beecrowd', x: 30, y: 76, primary: false },
+  { id: 'aed', x: 24, y: 20, primary: false },
+  { id: 'beecrowd', x: 26, y: 74, primary: false },
   { id: 'termos', x: 76, y: 72, primary: false },
 ];
 
@@ -33,7 +25,7 @@ const CONSTELLATION_EDGES = [
   ['aed', 'fullstack'],
 ];
 
-const ORBIT_FOCUS_TRACKS = [
+const OVERALL_STACK_TRACKS = [
   { name: 'C / C++ & DSA', percentage: 34 },
   { name: 'React & Node/Express', percentage: 28 },
   { name: 'IT Infra & Linux', percentage: 22 },
@@ -65,31 +57,22 @@ function MiniSparkline({ points }) {
   );
 }
 
-export default function TelemetryDashboard({
-  telemetry,
-  meta,
-  onRefresh,
-  refreshing,
-  cosmosSettings,
-  setCosmosSettings,
-}) {
+export default function TelemetryDashboard({ telemetry, meta, onRefresh, refreshing }) {
   const { t } = useLanguage();
   const [selectedStar, setSelectedStar] = useState('fullstack');
-  const [ringMode, setRingMode] = useState('repos'); // 'repos' | 'orbit'
+  const [ringMode, setRingMode] = useState('repos');
   const [hoveredPoint, setHoveredPoint] = useState(null);
 
-  // Série temporal normalizada para o gráfico de área violeta (Ref 3)
   const chartData = useMemo(() => {
     const raw = telemetry?.timeline || [];
     if (raw.length >= 4) return raw;
     return [
       { month: '2025-08', events: 2 },
-      { month: '2025-10', events: 3 },
-      { month: '2025-11', events: 4 },
-      { month: '2025-12', events: 3 },
-      { month: '2026-07', events: 6 },
-      { month: '2026-08', events: 4 },
-      { month: '2026-11', events: 5 },
+      { month: '2025-11', events: 3 },
+      { month: '2025-12', events: 2 },
+      { month: '2026-07', events: 4 },
+      { month: '2026-08', events: 2 },
+      { month: '2026-11', events: 4 },
     ];
   }, [telemetry]);
 
@@ -100,7 +83,6 @@ export default function TelemetryDashboard({
   );
   const activePointIdx = hoveredPoint ?? peakIndex;
 
-  // Coordenadas suaves em curva cúbica (Bezier)
   const chartCoords = chartData.map((d, idx) => {
     const x = 24 + (idx / Math.max(1, chartData.length - 1)) * 552;
     const y = 162 - (d.events / maxEvents) * 112;
@@ -116,14 +98,18 @@ export default function TelemetryDashboard({
 
   const smoothAreaPath = `${smoothLinePath} L ${chartCoords[chartCoords.length - 1].x} 178 L ${chartCoords[0].x} 178 Z`;
 
-  // Dados do anel circular (Ref 3)
   const ringList =
     ringMode === 'repos' && telemetry?.languages?.length
       ? telemetry.languages.slice(0, 4)
-      : ORBIT_FOCUS_TRACKS;
-  const primaryPercent = ringList[0]?.percentage || 85;
+      : OVERALL_STACK_TRACKS;
+  const primaryPercent = ringList[0]?.percentage || 55;
   const ringCircumference = 2 * Math.PI * 52;
   const ringDashOffset = ringCircumference * (1 - primaryPercent / 100);
+
+  const topTwoLangs = (telemetry?.languages || [])
+    .slice(0, 2)
+    .map((l) => l.name)
+    .join(' • ');
 
   const starById = Object.fromEntries(CONSTELLATION_LAYOUT.map((n) => [n.id, n]));
   const activeStarInfo = t.telemetry.constellationNodes[selectedStar];
@@ -131,7 +117,6 @@ export default function TelemetryDashboard({
   return (
     <section id="telemetry" className="relative z-10 py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
-        {/* Cabeçalho + Badge de Status API */}
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div className="max-w-2xl">
             <span className="inline-block border border-white/15 px-3 py-1 font-mono text-[10px] tracking-[0.26em] text-amethyst-300 uppercase">
@@ -163,7 +148,6 @@ export default function TelemetryDashboard({
           </div>
         </div>
 
-        {/* Moldura Principal Estilo Living Dashboard (Ref 3) */}
         <motion.div
           initial={{ opacity: 0, y: 26 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -171,36 +155,29 @@ export default function TelemetryDashboard({
           transition={{ duration: 0.7 }}
           className="glass-panel mt-12 rounded-3xl p-5 sm:p-7 lg:p-8"
         >
-          {/* Linha 1: 4 Cards KPI com Sparklines Violeta (Ref 3) */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {/* 3 KPIs objetivos e relevantes para recrutamento */}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {[
               {
                 icon: FolderGit2,
                 label: t.telemetry.kpis.repos,
-                value: telemetry?.publicRepos ?? 8,
+                value: telemetry?.publicRepos ?? 9,
                 sub: t.telemetry.kpis.reposSub,
                 spark: [20, 35, 32, 55, 68, 72, 92],
               },
               {
                 icon: Code2,
-                label: t.telemetry.kpis.footprint,
-                value: `${telemetry?.totalSizeKb ?? 150} KB`,
-                sub: t.telemetry.kpis.footprintSub,
-                spark: [15, 28, 46, 52, 74, 80, 95],
+                label: t.telemetry.kpis.topLang,
+                value: topTwoLangs || 'C • JavaScript',
+                sub: t.telemetry.kpis.topLangSub,
+                spark: [22, 42, 48, 60, 74, 82, 94],
               },
               {
-                icon: Users,
-                label: t.telemetry.kpis.network,
-                value: `${telemetry?.followers ?? 2} / ${telemetry?.following ?? 4}`,
-                sub: t.telemetry.kpis.networkSub,
-                spark: [25, 30, 42, 48, 60, 66, 78],
-              },
-              {
-                icon: Activity,
-                label: t.telemetry.kpis.status,
-                value: t.telemetry.kpis.statusVal,
-                sub: `${t.telemetry.kpis.statusSub} (${meta?.cacheTtlMinutes || 10}m)`,
-                spark: [62, 75, 70, 88, 84, 94, 98],
+                icon: Cpu,
+                label: t.telemetry.kpis.focus,
+                value: t.telemetry.kpis.focusVal,
+                sub: t.telemetry.kpis.focusSub,
+                spark: [30, 46, 58, 70, 80, 88, 98],
               },
             ].map((kpi) => (
               <div
@@ -211,12 +188,9 @@ export default function TelemetryDashboard({
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-amethyst-400/35 bg-amethyst-600/20 text-amethyst-300 shadow-[0_0_16px_rgba(139,92,246,0.28)]">
                     <kpi.icon className="h-4 w-4" />
                   </div>
-                  <span className="font-mono text-[10px] tracking-wider text-amethyst-300/80 uppercase">
-                    SYNC
-                  </span>
                 </div>
                 <p className="mt-4 text-xs text-mist">{kpi.label}</p>
-                <p className="mt-1 text-2xl font-semibold tracking-tight text-white">
+                <p className="mt-1 text-xl font-semibold tracking-tight text-white sm:text-2xl">
                   {kpi.value}
                 </p>
                 <p className="mt-0.5 font-mono text-[10px] text-mist/75">{kpi.sub}</p>
@@ -225,15 +199,12 @@ export default function TelemetryDashboard({
             ))}
           </div>
 
-          {/* Linha 2: Gráfico de Área Luminoso (8 cols) + Gauge Circular (4 cols) */}
+          {/* Gráfico de Atividade (8 cols) + Distribuição Circular (4 cols) */}
           <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12">
-            {/* Gráfico de Área Violeta (Ref 3) */}
             <div className="rounded-2xl border border-white/10 bg-[#0B0915]/80 p-5 sm:p-6 lg:col-span-8">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <h3 className="text-base font-medium text-white">
-                    {t.telemetry.activityTitle}
-                  </h3>
+                  <h3 className="text-base font-medium text-white">{t.telemetry.activityTitle}</h3>
                   <p className="mt-0.5 text-xs text-mist">{t.telemetry.activitySub}</p>
                 </div>
                 <div className="rounded-full border border-amethyst-400/35 bg-amethyst-600/15 px-3.5 py-1 font-mono text-[11px] text-amethyst-300">
@@ -259,7 +230,6 @@ export default function TelemetryDashboard({
                     </filter>
                   </defs>
 
-                  {/* Linhas de grade sutis */}
                   {[48, 92, 136, 178].map((y) => (
                     <line
                       key={y}
@@ -272,7 +242,6 @@ export default function TelemetryDashboard({
                     />
                   ))}
 
-                  {/* Área + Linha curva brilhante */}
                   <path d={smoothAreaPath} fill="url(#areaVioletGrad)" />
                   <path
                     d={smoothLinePath}
@@ -282,7 +251,6 @@ export default function TelemetryDashboard({
                     filter="url(#glowStroke)"
                   />
 
-                  {/* Pontos interativos */}
                   {chartCoords.map((pt, idx) => {
                     const isFocused = idx === activePointIdx;
                     return (
@@ -303,10 +271,11 @@ export default function TelemetryDashboard({
                               strokeDasharray="3 4"
                             />
                             <circle cx={pt.x} cy={pt.y} r="13" fill="rgba(168,85,247,0.3)" />
-                            {/* Tooltip Flutuante Estilo Ref 3 */}
-                            <g transform={`translate(${Math.min(485, Math.max(55, pt.x - 42))}, ${Math.max(6, pt.y - 44)})`}>
+                            <g
+                              transform={`translate(${Math.min(470, Math.max(55, pt.x - 48))}, ${Math.max(6, pt.y - 44)})`}
+                            >
                               <rect
-                                width="84"
+                                width="96"
                                 height="30"
                                 rx="8"
                                 fill="rgba(24,18,42,0.94)"
@@ -314,18 +283,18 @@ export default function TelemetryDashboard({
                                 strokeWidth="1"
                               />
                               <text
-                                x="42"
+                                x="48"
                                 y="14"
                                 textAnchor="middle"
                                 fill="#FFFFFF"
-                                fontSize="10.5"
+                                fontSize="10"
                                 fontWeight="600"
                                 fontFamily="JetBrains Mono, monospace"
                               >
                                 {pt.events} {t.telemetry.eventsLabel}
                               </text>
                               <text
-                                x="42"
+                                x="48"
                                 y="24"
                                 textAnchor="middle"
                                 fill="#C084FC"
@@ -362,7 +331,6 @@ export default function TelemetryDashboard({
               </div>
             </div>
 
-            {/* Anel Circular Luminoso + Ranking (Ref 3) */}
             <div className="flex flex-col justify-between rounded-2xl border border-white/10 bg-[#0B0915]/80 p-5 sm:p-6 lg:col-span-4">
               <div className="flex items-center justify-between gap-2">
                 <h3 className="text-base font-medium text-white">{t.telemetry.ringTitle}</h3>
@@ -376,9 +344,7 @@ export default function TelemetryDashboard({
                       type="button"
                       onClick={() => setRingMode(mode.id)}
                       className={`rounded-full px-2.5 py-1 font-mono text-[10px] transition ${
-                        ringMode === mode.id
-                          ? 'glass-pill-active'
-                          : 'text-mist hover:text-white'
+                        ringMode === mode.id ? 'glass-pill-active' : 'text-mist hover:text-white'
                       }`}
                     >
                       {mode.label}
@@ -391,7 +357,7 @@ export default function TelemetryDashboard({
                 <div className="relative h-36 w-36">
                   <svg viewBox="0 0 130 130" className="h-full w-full -rotate-90">
                     <defs>
-                      <linearGradient id="ringViolet" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <linearGradient id="ringViolet" x1="0" y1="0" x2="100%" y2="100%">
                         <stop offset="0%" stopColor="#F5F3FF" />
                         <stop offset="45%" stopColor="#C084FC" />
                         <stop offset="100%" stopColor="#7C3AED" />
@@ -430,216 +396,94 @@ export default function TelemetryDashboard({
 
               <div className="space-y-2.5">
                 {ringList.map((item, idx) => (
-                  <div
-                    key={item.name}
-                    className="flex items-center justify-between text-xs"
-                  >
+                  <div key={item.name} className="flex items-center justify-between text-xs">
                     <span className="flex items-center gap-2 text-mist">
                       <span className="font-mono text-[10px] text-white/40">{idx + 1}.</span>
                       <span className="text-white/90">{item.name}</span>
                     </span>
-                    <span className="font-mono text-xs text-amethyst-300">
-                      {item.percentage}%
-                    </span>
+                    <span className="font-mono text-xs text-amethyst-300">{item.percentage}%</span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
 
-          {/* Linha 3: Mapa Estelar Interativo (Ref 3) + Controles Táteis do Cosmos (Ref 5) */}
-          <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12">
-            {/* Mapa Estelar Interativo */}
-            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#080610]/90 p-5 sm:p-6 lg:col-span-7">
-              <div>
-                <h3 className="text-base font-medium text-white">
-                  {t.telemetry.constellationTitle}
-                </h3>
-                <p className="mt-0.5 text-xs text-mist">{t.telemetry.constellationSub}</p>
-              </div>
+          {/* Mapa Interativo de Competências & Projetos em largura total limpa */}
+          <div className="mt-6 rounded-2xl border border-white/10 bg-[#080610]/90 p-5 sm:p-6">
+            <div>
+              <h3 className="text-base font-medium text-white">{t.telemetry.constellationTitle}</h3>
+              <p className="mt-0.5 text-xs text-mist">{t.telemetry.constellationSub}</p>
+            </div>
 
-              <div className="relative mt-4 h-56 w-full overflow-hidden rounded-xl border border-white/[0.06] bg-[radial-gradient(circle_at_50%_50%,rgba(124,58,237,0.16),rgba(5,5,9,0.96)_72%)]">
-                {/* Grade de coordenadas celestiais */}
-                <div className="editorial-grain absolute inset-0 opacity-60" />
+            <div className="relative mt-4 h-56 w-full overflow-hidden rounded-xl border border-white/[0.06] bg-[radial-gradient(circle_at_50%_50%,rgba(124,58,237,0.16),rgba(5,5,9,0.96)_72%)]">
+              <div className="editorial-grain absolute inset-0 opacity-60" />
 
-                <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full">
-                  {CONSTELLATION_EDGES.map(([aId, bId]) => {
-                    const a = starById[aId];
-                    const b = starById[bId];
-                    const highlighted = selectedStar === aId || selectedStar === bId;
-                    return (
-                      <line
-                        key={`${aId}-${bId}`}
-                        x1={a.x}
-                        y1={a.y}
-                        x2={b.x}
-                        y2={b.y}
-                        stroke={
-                          highlighted
-                            ? 'rgba(216,180,254,0.75)'
-                            : 'rgba(139,92,246,0.24)'
-                        }
-                        strokeWidth={highlighted ? 0.55 : 0.3}
-                      />
-                    );
-                  })}
-                </svg>
-
-                {/* Nós Estelares Clicáveis */}
-                {CONSTELLATION_LAYOUT.map((node) => {
-                  const active = selectedStar === node.id;
-                  const info = t.telemetry.constellationNodes[node.id];
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full">
+                {CONSTELLATION_EDGES.map(([aId, bId]) => {
+                  const a = starById[aId];
+                  const b = starById[bId];
+                  const highlighted = selectedStar === aId || selectedStar === bId;
                   return (
-                    <button
-                      key={node.id}
-                      type="button"
-                      onClick={() => setSelectedStar(node.id)}
-                      onMouseEnter={() => setSelectedStar(node.id)}
-                      style={{ left: `${node.x}%`, top: `${node.y}%` }}
-                      className="group absolute -translate-x-1/2 -translate-y-1/2 focus:outline-none"
-                    >
-                      <span
-                        className={`block rounded-full transition-all duration-300 ${
-                          active
-                            ? 'h-5 w-5 bg-white shadow-[0_0_24px_8px_rgba(168,85,247,0.85)]'
-                            : node.primary
-                              ? 'h-3.5 w-3.5 bg-amethyst-300 shadow-[0_0_16px_4px_rgba(139,92,246,0.65)] group-hover:scale-125'
-                              : 'h-2.5 w-2.5 bg-white/80 shadow-[0_0_12px_2px_rgba(192,132,252,0.5)] group-hover:scale-125'
-                        }`}
-                      />
-                      <span
-                        className={`pointer-events-none absolute left-1/2 top-6 -translate-x-1/2 whitespace-nowrap font-mono text-[10px] transition ${
-                          active ? 'text-white' : 'text-mist/85'
-                        }`}
-                      >
-                        {info?.title}
-                      </span>
-                    </button>
+                    <line
+                      key={`${aId}-${bId}`}
+                      x1={a.x}
+                      y1={a.y}
+                      x2={b.x}
+                      y2={b.y}
+                      stroke={highlighted ? 'rgba(216,180,254,0.75)' : 'rgba(139,92,246,0.24)'}
+                      strokeWidth={highlighted ? 0.55 : 0.3}
+                    />
                   );
                 })}
-              </div>
+              </svg>
 
-              {/* Barra Dockada de Telemetria da Estrela Selecionada (zero sobreposição!) */}
-              {activeStarInfo && (
-                <div className="mt-3 flex flex-col gap-1 rounded-xl border border-amethyst-400/25 bg-black/55 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <Sparkles className="h-3.5 w-3.5 shrink-0 text-amethyst-300" />
-                    <span className="text-xs font-semibold text-white">
-                      {activeStarInfo.title}
-                    </span>
-                    <span className="rounded-full border border-amethyst-400/30 bg-amethyst-600/15 px-2 py-0.5 font-mono text-[10px] text-amethyst-300">
-                      {activeStarInfo.tag}
-                    </span>
-                  </div>
-                  <p className="text-[11px] leading-relaxed text-mist sm:max-w-sm sm:text-right">
-                    {activeStarInfo.desc}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* Calibração Tátil do Cosmos (inspirada nos sliders & switches da Ref 5!) */}
-            <div className="flex flex-col justify-between rounded-2xl border border-white/10 bg-[#0B0915]/80 p-5 sm:p-6 lg:col-span-5">
-              <div>
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-amethyst-400/35 bg-amethyst-600/20 text-amethyst-300">
-                    <Sliders className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-medium text-white">
-                      {t.telemetry.controlsTitle}
-                    </h3>
-                    <p className="text-xs text-mist">{t.telemetry.controlsSub}</p>
-                  </div>
-                </div>
-
-                <div className="mt-6 space-y-6">
-                  {/* Slider 1: Velocidade Orbital */}
-                  <div>
-                    <div className="mb-2 flex items-center justify-between text-xs">
-                      <span className="text-white/90">{t.telemetry.controlSpeed}</span>
-                      <span className="font-mono text-amethyst-300">
-                        {cosmosSettings.speed.toFixed(1)}x
-                      </span>
-                    </div>
-                    <input
-                      type="range"
-                      min="0.2"
-                      max="3.0"
-                      step="0.2"
-                      value={cosmosSettings.speed}
-                      onChange={(e) =>
-                        setCosmosSettings((prev) => ({
-                          ...prev,
-                          speed: Number(e.target.value),
-                        }))
-                      }
-                      className="cosmic-slider w-full"
+              {CONSTELLATION_LAYOUT.map((node) => {
+                const active = selectedStar === node.id;
+                const info = t.telemetry.constellationNodes[node.id];
+                return (
+                  <button
+                    key={node.id}
+                    type="button"
+                    onClick={() => setSelectedStar(node.id)}
+                    onMouseEnter={() => setSelectedStar(node.id)}
+                    style={{ left: `${node.x}%`, top: `${node.y}%` }}
+                    className="group absolute -translate-x-1/2 -translate-y-1/2 focus:outline-none"
+                  >
+                    <span
+                      className={`block rounded-full transition-all duration-300 ${
+                        active
+                          ? 'h-5 w-5 bg-white shadow-[0_0_24px_8px_rgba(168,85,247,0.85)]'
+                          : node.primary
+                            ? 'h-3.5 w-3.5 bg-amethyst-300 shadow-[0_0_16px_4px_rgba(139,92,246,0.65)] group-hover:scale-125'
+                            : 'h-2.5 w-2.5 bg-white/80 shadow-[0_0_12px_2px_rgba(192,132,252,0.5)] group-hover:scale-125'
+                      }`}
                     />
-                  </div>
-
-                  {/* Slider 2: Intensidade de Refração Violeta */}
-                  <div>
-                    <div className="mb-2 flex items-center justify-between text-xs">
-                      <span className="text-white/90">{t.telemetry.controlGlow}</span>
-                      <span className="font-mono text-amethyst-300">
-                        {Math.round(cosmosSettings.glowIntensity * 100)}%
-                      </span>
-                    </div>
-                    <input
-                      type="range"
-                      min="0.3"
-                      max="1.6"
-                      step="0.1"
-                      value={cosmosSettings.glowIntensity}
-                      onChange={(e) =>
-                        setCosmosSettings((prev) => ({
-                          ...prev,
-                          glowIntensity: Number(e.target.value),
-                        }))
-                      }
-                      className="cosmic-slider w-full"
-                    />
-                  </div>
-
-                  {/* Interruptor Físico Estilo Vidro Fumê da Ref 5 */}
-                  <div className="flex items-center justify-between rounded-xl border border-white/10 bg-black/45 px-4 py-3.5">
-                    <div>
-                      <span className="block text-xs font-medium text-white">
-                        {t.telemetry.controlLines}
-                      </span>
-                      <span className="font-mono text-[10px] text-mist">
-                        {cosmosSettings.showConstellations ? t.telemetry.on : t.telemetry.off}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      role="switch"
-                      aria-checked={cosmosSettings.showConstellations}
-                      onClick={() =>
-                        setCosmosSettings((prev) => ({
-                          ...prev,
-                          showConstellations: !prev.showConstellations,
-                        }))
-                      }
-                      className={`relative h-8 w-16 rounded-full border p-1 transition-all duration-300 ${
-                        cosmosSettings.showConstellations
-                          ? 'border-amethyst-300/60 bg-amethyst-600/35 shadow-[0_0_22px_rgba(139,92,246,0.55)]'
-                          : 'border-white/15 bg-white/5'
+                    <span
+                      className={`pointer-events-none absolute left-1/2 top-6 -translate-x-1/2 whitespace-nowrap font-mono text-[10px] transition ${
+                        active ? 'text-white' : 'text-mist/85'
                       }`}
                     >
-                      <span
-                        className={`block h-5 w-5 rounded-full transition-transform duration-300 ${
-                          cosmosSettings.showConstellations
-                            ? 'translate-x-8 bg-gradient-to-br from-white via-amethyst-300 to-amethyst-500 shadow-[0_0_14px_#E9D5FF]'
-                            : 'translate-x-0 bg-white/40'
-                        }`}
-                      />
-                    </button>
-                  </div>
-                </div>
-              </div>
+                      {info?.title}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
+
+            {activeStarInfo && (
+              <div className="mt-3 flex flex-col gap-1.5 rounded-xl border border-amethyst-400/25 bg-black/55 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-2.5">
+                  <Sparkles className="h-3.5 w-3.5 shrink-0 text-amethyst-300" />
+                  <span className="text-xs font-semibold text-white">{activeStarInfo.title}</span>
+                  <span className="rounded-full border border-amethyst-400/30 bg-amethyst-600/15 px-2.5 py-0.5 font-mono text-[10px] text-amethyst-300">
+                    {activeStarInfo.tag}
+                  </span>
+                </div>
+                <p className="text-xs leading-relaxed text-mist sm:text-right">
+                  {activeStarInfo.desc}
+                </p>
+              </div>
+            )}
           </div>
         </motion.div>
       </div>

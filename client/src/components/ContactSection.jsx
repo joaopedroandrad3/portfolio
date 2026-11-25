@@ -3,11 +3,10 @@ import { motion } from 'framer-motion';
 import {
   Check,
   Copy,
+  ExternalLink,
   Github,
-  Instagram,
   Linkedin,
   Mail,
-  MessageSquare,
   Send,
   Sparkles,
 } from 'lucide-react';
@@ -20,7 +19,7 @@ export default function ContactSection() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [status, setStatus] = useState('idle'); // 'idle' | 'sending' | 'sent' | 'error'
   const [errorCode, setErrorCode] = useState(null);
-  const [signalId, setSignalId] = useState('');
+  const [fallbackMailto, setFallbackMailto] = useState(null);
 
   const handleCopyEmail = async () => {
     try {
@@ -36,6 +35,7 @@ export default function ContactSection() {
     e.preventDefault();
     setStatus('sending');
     setErrorCode(null);
+    setFallbackMailto(null);
 
     try {
       const response = await fetch('/api/contact', {
@@ -43,19 +43,36 @@ export default function ContactSection() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
-      const json = await response.json();
+      const json = await response.json().catch(() => ({}));
 
-      if (!response.ok) {
+      if (!response.ok || !json.ok) {
         setErrorCode(json.error || 'server_error');
+        if (json.fallbackMailto) {
+          setFallbackMailto(json.fallbackMailto);
+        } else {
+          const subject = form.subject || `Contato via Portfólio — ${form.name}`;
+          const body = `Nome: ${form.name}\nE-mail: ${form.email}\n\n${form.message}`;
+          setFallbackMailto(
+            `mailto:${PROFILE_CONFIG.socials.email}?subject=${encodeURIComponent(
+              subject
+            )}&body=${encodeURIComponent(body)}`
+          );
+        }
         setStatus('error');
         return;
       }
 
-      setSignalId(json.signalId);
       setStatus('sent');
       setForm({ name: '', email: '', subject: '', message: '' });
     } catch {
       setErrorCode('server_error');
+      const subject = form.subject || `Contato via Portfólio — ${form.name}`;
+      const body = `Nome: ${form.name}\nE-mail: ${form.email}\n\n${form.message}`;
+      setFallbackMailto(
+        `mailto:${PROFILE_CONFIG.socials.email}?subject=${encodeURIComponent(
+          subject
+        )}&body=${encodeURIComponent(body)}`
+      );
       setStatus('error');
     }
   };
@@ -64,7 +81,7 @@ export default function ContactSection() {
     <section id="contact" className="relative z-10 pt-24 pb-12 lg:pt-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
-          {/* Lado Esquerdo Editorial & Dock Social em Vidro Fumê (Ref 5) */}
+          {/* Lado Esquerdo: Canais Profissionais */}
           <div className="flex flex-col justify-between lg:col-span-5">
             <div>
               <span className="inline-block border border-white/15 px-3 py-1 font-mono text-[10px] tracking-[0.26em] text-amethyst-300 uppercase">
@@ -78,7 +95,7 @@ export default function ContactSection() {
                 {t.contact.subtitle}
               </p>
 
-              {/* Botão Copiar E-mail Direto */}
+              {/* E-mail Profissional com Cópia Rápida */}
               <div className="mt-8">
                 <button
                   type="button"
@@ -110,17 +127,15 @@ export default function ContactSection() {
               </div>
             </div>
 
-            {/* Dock de Ícones Sociais em Vidro Fumê (Ref 5) */}
+            {/* Apenas perfis relevantes para recrutamento */}
             <div className="mt-10">
               <span className="block font-mono text-[10px] tracking-[0.24em] text-mist uppercase">
                 {t.contact.directChannels}
               </span>
               <div className="mt-4 flex flex-wrap items-center gap-3">
                 {[
-                  { label: 'GitHub', href: PROFILE_CONFIG.socials.github, icon: Github },
                   { label: 'LinkedIn', href: PROFILE_CONFIG.socials.linkedin, icon: Linkedin },
-                  { label: 'Instagram', href: PROFILE_CONFIG.socials.instagram, icon: Instagram },
-                  { label: `Discord (${PROFILE_CONFIG.socials.discordHandle})`, href: PROFILE_CONFIG.socials.discord, icon: MessageSquare },
+                  { label: 'GitHub', href: PROFILE_CONFIG.socials.github, icon: Github },
                   { label: 'Email', href: `mailto:${PROFILE_CONFIG.socials.email}`, icon: Mail },
                 ].map(({ label, href, icon: Icon }) => (
                   <a
@@ -138,7 +153,7 @@ export default function ContactSection() {
             </div>
           </div>
 
-          {/* Lado Direito: Formulário Conectado ao POST /api/contact */}
+          {/* Lado Direito: Formulário com Entrega Real por E-mail */}
           <div className="lg:col-span-7">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -166,9 +181,8 @@ export default function ContactSection() {
                   <h4 className="mt-5 font-serif text-2xl text-white">
                     {t.contact.successTitle}
                   </h4>
-                  <p className="mt-2 text-sm text-mist">
-                    {t.contact.successBody}{' '}
-                    <span className="font-mono text-amethyst-300">{signalId}</span>.
+                  <p className="mx-auto mt-2 max-w-md text-sm text-mist">
+                    {t.contact.successBody}
                   </p>
                   <button
                     type="button"
@@ -237,9 +251,18 @@ export default function ContactSection() {
                   </div>
 
                   {status === 'error' && errorCode && (
-                    <p className="rounded-xl border border-amethyst-400/40 bg-amethyst-700/20 px-4 py-2.5 text-xs text-amethyst-200">
-                      {t.contact.errors[errorCode] || t.contact.errors.server_error}
-                    </p>
+                    <div className="space-y-3 rounded-xl border border-amethyst-400/40 bg-amethyst-700/20 px-4 py-3 text-xs text-amethyst-200">
+                      <p>{t.contact.errors[errorCode] || t.contact.errors.server_error}</p>
+                      {fallbackMailto && (
+                        <a
+                          href={fallbackMailto}
+                          className="inline-flex items-center gap-1.5 rounded-full border border-amethyst-300/40 bg-black/40 px-3.5 py-1.5 font-mono text-[11px] text-white transition hover:border-amethyst-300"
+                        >
+                          <ExternalLink className="h-3.5 w-3.5 text-amethyst-300" />
+                          {t.contact.fallbackMailtoCta}
+                        </a>
+                      )}
+                    </div>
                   )}
 
                   <div className="pt-2">
@@ -258,14 +281,13 @@ export default function ContactSection() {
           </div>
         </div>
 
-        {/* Rodapé Editorial Fino (inspirado na barra inferior da Ref 2) */}
         <footer className="mt-20 border border-white/12 bg-black/45 px-6 py-4 backdrop-blur-md">
           <div className="flex flex-col items-center justify-between gap-3 text-center sm:flex-row sm:text-left">
             <span className="font-mono text-[11px] text-mist">
-              @{PROFILE_CONFIG.githubUsername} • {PROFILE_CONFIG.coordinates}
+              {PROFILE_CONFIG.socials.email}
             </span>
             <span className="rounded-full bg-white px-4 py-1 font-mono text-[10px] font-semibold tracking-[0.2em] text-black uppercase">
-              JP // ORBITAL PORTFOLIO
+              JP.ANDRADE
             </span>
             <span className="text-xs text-mist">{t.contact.footerCredit}</span>
           </div>

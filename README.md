@@ -50,4 +50,10 @@ Quando quiser trocar a relíquia orbital 3D interativa por um retrato seu:
 - `GET /api/github/repos` — repositórios filtráveis (`?category=...&q=...`).
 - `GET /api/github/readme` — README do perfil `@joaopedroandrad3`.
 - `GET /api/github/repos/:repo/readme` — README individual de qualquer repositório.
-- `POST /api/contact` — recebe mensagens do formulário e grava em `server/data/messages.json`.
+- `POST /api/contact` — envia e-mail real diretamente para `joaopedroandrad3@gmail.com` via **Resend** (`RESEND_API_KEY`).
+
+## Ativando o Envio Real de E-mails (Resend)
+
+1. Crie uma conta gratuita em https://resend.com (pode entrar com o GitHub — até 3.000 e-mails/mês grátis).
+2. Em **API Keys**, crie uma chave (`re_...`).
+3. Configure `RESEND_API_KEY` nas variáveis de ambiente da Vercel (ou no arquivo `server/.env` localmente).

@@ -17,13 +17,7 @@ const SECTION_IDS = ['hero', 'about', 'projects', 'telemetry', 'trajectory', 'co
 function PortfolioShell() {
   const { data, loading, refreshing, refresh, fetchRepoReadme } = useGitHubData();
   const [activeSection, setActiveSection] = useState('hero');
-  const [cosmosSettings, setCosmosSettings] = useState({
-    speed: 1.0,
-    glowIntensity: 1.0,
-    showConstellations: true,
-  });
 
-  // Barra fina de progresso de leitura no topo
   const { scrollYProgress } = useScroll();
   const smoothProgress = useSpring(scrollYProgress, { stiffness: 160, damping: 28 });
 
@@ -49,25 +43,14 @@ function PortfolioShell() {
 
   return (
     <div className="relative min-h-screen bg-[#040407] text-[#F6F6FA]">
-      {/* Linha fina de progresso de scroll */}
       <motion.div
         style={{ scaleX: smoothProgress }}
         className="fixed inset-x-0 top-0 z-[60] h-[2px] origin-left bg-gradient-to-r from-white via-amethyst-400 to-amethyst-600 shadow-[0_0_12px_#A855F7]"
       />
 
-      {/* Motor Astronômico Interativo em Canvas */}
-      <StarfieldCanvas
-        speed={cosmosSettings.speed}
-        glowIntensity={cosmosSettings.glowIntensity}
-        showConstellations={cosmosSettings.showConstellations}
-      />
+      <StarfieldCanvas speed={1} glowIntensity={1} showConstellations />
 
-      {/* Navegação Superior & Trilho Orbital Lateral 01-06 */}
-      <Navbar
-        apiSource={data?.meta?.source}
-        loading={loading}
-        activeSection={activeSection}
-      />
+      <Navbar activeSection={activeSection} />
       <OrbitalIndexRail activeSection={activeSection} />
 
       <main className="relative z-10">
@@ -87,8 +70,6 @@ function PortfolioShell() {
           meta={data?.meta}
           onRefresh={refresh}
           refreshing={refreshing}
-          cosmosSettings={cosmosSettings}
-          setCosmosSettings={setCosmosSettings}
         />
         <TrajectorySection />
         <ContactSection />

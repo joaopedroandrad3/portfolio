@@ -12,7 +12,7 @@ const NAV_ITEMS = [
   { id: 'contact', key: 'contact', num: '06' },
 ];
 
-export default function Navbar({ apiSource, loading, activeSection }) {
+export default function Navbar({ activeSection }) {
   const { lang, setLang, t } = useLanguage();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -73,28 +73,8 @@ export default function Navbar({ apiSource, loading, activeSection }) {
           })}
         </nav>
 
-        {/* Controles à direita: Status API + Switch PT/EN (Ref 2 & 5) */}
+        {/* Controles à direita: Switch PT/EN + menu mobile */}
         <div className="flex items-center gap-3">
-          <div className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 font-mono text-[11px] text-mist md:flex">
-            <span
-              className={`h-1.5 w-1.5 rounded-full ${
-                loading
-                  ? 'animate-pulse bg-amethyst-300'
-                  : apiSource === 'live'
-                    ? 'bg-amethyst-400 shadow-[0_0_10px_#A855F7]'
-                    : 'bg-white/60'
-              }`}
-            />
-            <span>
-              {loading
-                ? t.nav.syncing
-                : apiSource === 'live'
-                  ? t.nav.apiOnline
-                  : t.nav.apiSnapshot}
-            </span>
-          </div>
-
-          {/* Interruptor tátil de vidro fumê PT-BR / EN */}
           <div
             role="group"
             aria-label="Language switcher"
@@ -118,7 +98,6 @@ export default function Navbar({ apiSource, loading, activeSection }) {
             })}
           </div>
 
-          {/* Menu mobile */}
           <button
             type="button"
             onClick={() => setMobileOpen((v) => !v)}

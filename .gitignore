@@ -11,5 +11,6 @@ server/data/messages.json
 # Builds e caches
 client/dist/
 .vite/
+.vercel/
 *.log
 .DS_Store

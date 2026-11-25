@@ -349,8 +349,12 @@ export async function getGitHubOverview({ forceRefresh = false } = {}) {
     readmeRaw = FALLBACK_PROFILE_README;
   }
 
+  // Oculta forks, o repositório meta do próprio perfil (já exibido na seção Sobre)
+  // e repositórios vazios sem conteúdo relevante para recrutadores
+  const HIDDEN_REPOS = new Set([username.toLowerCase(), 'tecnica-de-programacao']);
+
   const normalizedRepos = reposData
-    .filter((repo) => !repo.fork)
+    .filter((repo) => !repo.fork && !HIDDEN_REPOS.has(repo.name.toLowerCase()))
     .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at))
     .map((repo, idx) => enrichRepo(repo, idx));
 
